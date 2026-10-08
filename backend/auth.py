@@ -1,13 +1,32 @@
-from datetime import datetime, timedelta, timezone
+import os
 
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+from dotenv import load_dotenv
 from jose import JWTError, jwt
 
 
-SECRET_KEY = "momato-secret-key-change-this-later"
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-ALGORITHM = "HS256"
+load_dotenv(BASE_DIR / ".env")
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def _load_secret_key() -> str:
+    secret_key = os.getenv("SECRET_KEY")
+    if not secret_key:
+        raise RuntimeError("SECRET_KEY is not set in .env")
+    return secret_key
+
+
+SECRET_KEY = _load_secret_key()
+
+
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+)
 
 
 def create_access_token(data: dict):
